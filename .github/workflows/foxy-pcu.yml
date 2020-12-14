@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DOCKER_REPO_1: ghcr.io/autocore-ats/core-focal-pcu:latest
+      DOCKER_REPO_1: ghcr.io/autocore-ats/core-foxy-pcu:latest
       DOCKER_REPO_2: ghcr.io/autocore-ats/base-foxy-pcu:latest
       DOCKER_REPO_3: ghcr.io/autocore-ats/runtime-foxy-pcu:latest
       DOCKER_REPO_4: ghcr.io/autocore-ats/build-foxy-pcu:latest
@@ -34,10 +34,10 @@ jobs:
       uses: docker/setup-buildx-action@v1
     -
       name: Build and push the core docker image
-      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --tag $DOCKER_REPO_1 --file core.focal.pcu.dockerfile .
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=ubuntu:focal --tag $DOCKER_REPO_1 --file core.dockerfile .
     - 
       name: Build and push the base docker image
-      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_1 --tag $DOCKER_REPO_2 --file base.foxy.dockerfile .
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_1 --tag $DOCKER_REPO_2 --file sources.list.foxy.dockerfile .
     - 
       name: Build and push the runtime docker image
       run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag $DOCKER_REPO_3 --file runtime.foxy.dockerfile .
