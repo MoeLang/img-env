@@ -88,14 +88,10 @@ jobs:
       run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_1 --tag $DOCKER_REPO_2 --file base.eloquent.dockerfile .
     - 
       name: Build and push the runtime docker image
-      run: |
-        docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag tmp --file runtime.eloquent.dockerfile .
-        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_3 --file runtime.dockerfile .
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag $DOCKER_REPO_3 --file runtime.dockerfile .
     - 
       name: Build and push the build docker image
-      run: |
-        docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3 --tag tmp --file build.eloquent.dockerfile .
-        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_4 --file build.dockerfile .
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3 --tag $DOCKER_REPO_4 --file build.dockerfile .
     - 
       name: Build and push the devel docker image
       run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_4 --tag $DOCKER_REPO_5 --file devel.dockerfile .
