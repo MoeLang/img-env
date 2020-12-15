@@ -9,54 +9,6 @@ on:
     branches: [ main ]
 
 jobs:
-  melodic-pc:
-    runs-on: ubuntu-latest
-    env:
-      DOCKER_REPO_1: ghcr.io/autocore-ats/core-melodic-pc:latest
-      DOCKER_REPO_2: ghcr.io/autocore-ats/base-melodic-pc:latest
-      DOCKER_REPO_3: ghcr.io/autocore-ats/runtime-melodic-pc:latest
-      DOCKER_REPO_4: ghcr.io/autocore-ats/build-melodic-pc:latest
-      DOCKER_REPO_5: ghcr.io/autocore-ats/devel-melodic-pc:latest
-    steps:
-    -
-      name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GHCR_TOKEN }}
-    - 
-      name: Checkout
-      uses: actions/checkout@v2
-    - 
-      name: Build and push the core docker image
-      run: |
-        docker build . --file core.dockerfile --tag $DOCKER_REPO_1 --build-arg FROM_IMAGE=nvidia/cudagl:10.2-runtime-ubuntu18.04
-        docker push $DOCKER_REPO_1
-    - 
-      name: Build and push the base docker image
-      run: |
-        docker build . --file base.eloquent.dockerfile --tag tmp --build-arg FROM_IMAGE=$DOCKER_REPO_1
-        docker build . --file base.melodic.dockerfile --tag $DOCKER_REPO_2 --build-arg FROM_IMAGE=tmp
-        docker push $DOCKER_REPO_2
-    - 
-      name: Build and push the runtime docker image
-      run: |
-        docker build . --file runtime.melodic.dockerfile --tag tmp --build-arg FROM_IMAGE=$DOCKER_REPO_2
-        docker build . --file runtime.dockerfile --tag $DOCKER_REPO_3 --build-arg FROM_IMAGE=tmp
-        docker push $DOCKER_REPO_3
-    - 
-      name: Build and push the build docker image
-      run: |
-        docker build . --file build.melodic.dockerfile --tag tmp --build-arg FROM_IMAGE=$DOCKER_REPO_3
-        docker build . --file build.eloquent.bridge.dockerfile --tag tmp --build-arg FROM_IMAGE=tmp
-        docker build . --file build.dockerfile --tag $DOCKER_REPO_4 --build-arg FROM_IMAGE=tmp
-        docker push $DOCKER_REPO_4
-    - 
-      name: Build and push the devel docker image
-      run: |
-        docker build . --file devel.dockerfile --tag $DOCKER_REPO_5 --build-arg FROM_IMAGE=$DOCKER_REPO_4
-        docker push $DOCKER_REPO_5
   eloquent-pc:
     runs-on: ubuntu-latest
     env:
@@ -103,3 +55,87 @@ jobs:
       run: |
         docker build . --file devel.dockerfile --tag $DOCKER_REPO_5 --build-arg FROM_IMAGE=$DOCKER_REPO_4
         docker push $DOCKER_REPO_5
+  eloquent-xavier:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REPO_1: ghcr.io/autocore-ats/core-eloquent-xavier:latest
+      DOCKER_REPO_2: ghcr.io/autocore-ats/base-eloquent-xavier:latest
+      DOCKER_REPO_3: ghcr.io/autocore-ats/runtime-eloquent-xavier:latest
+      DOCKER_REPO_4: ghcr.io/autocore-ats/build-eloquent-xavier:latest
+      DOCKER_REPO_5: ghcr.io/autocore-ats/devel-eloquent-xavier:latest
+    steps:
+    -
+      name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GHCR_TOKEN }}
+    - 
+      name: Checkout
+      uses: actions/checkout@v2
+    -
+      name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    -
+      name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    -
+      name: Build and push the core docker image
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=nvcr.io/nvidia/l4t-base:r32.4.4 --tag $DOCKER_REPO_1 --file core.dockerfile .
+    - 
+      name: Build and push the base docker image
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_1 --tag $DOCKER_REPO_2 --file base.eloquent.dockerfile .
+    - 
+      name: Build and push the runtime docker image
+      run: |
+        docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag tmp --file runtime.eloquent.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_3 --file runtime.dockerfile .
+    - 
+      name: Build and push the build docker image
+      run: |
+        docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3 --tag tmp --file build.eloquent.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_4 --file build.dockerfile .
+    - 
+      name: Build and push the devel docker image
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_4 --tag $DOCKER_REPO_5 --file devel.dockerfile .
+  foxy-pcu:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REPO_1: ghcr.io/autocore-ats/core-foxy-pcu:latest
+      DOCKER_REPO_2: ghcr.io/autocore-ats/base-foxy-pcu:latest
+      DOCKER_REPO_3: ghcr.io/autocore-ats/runtime-foxy-pcu:latest
+      DOCKER_REPO_4: ghcr.io/autocore-ats/build-foxy-pcu:latest
+      DOCKER_REPO_5: ghcr.io/autocore-ats/devel-foxy-pcu:latest
+    steps:
+    -
+      name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GHCR_TOKEN }}
+    - 
+      name: Checkout
+      uses: actions/checkout@v2
+    -
+      name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    -
+      name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    -
+      name: Build and push the core docker image
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=ubuntu:focal --tag $DOCKER_REPO_1 --file core.dockerfile .
+    - 
+      name: Build and push the base docker image
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_1 --tag $DOCKER_REPO_2 --file base.foxy.dockerfile .
+    - 
+      name: Build and push the runtime docker image
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag $DOCKER_REPO_3 --file runtime.dockerfile .
+    - 
+      name: Build and push the build docker image
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3 --tag $DOCKER_REPO_4 --file build.dockerfile .
+    - 
+      name: Build and push the devel docker image
+      run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_4 --tag $DOCKER_REPO_5 --file devel.dockerfile .

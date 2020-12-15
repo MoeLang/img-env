@@ -12,7 +12,3 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     libnvonnxparsers-dev=7.2.1-1+cuda11.1 \
     libnvparsers-dev=7.2.1-1+cuda11.1 \
     && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    ros-${ROS_DISTRO}-test-msgs \
-    && rm -rf /var/lib/apt/lists/*
