@@ -1,8 +1,6 @@
 ARG FROM_IMAGE
 FROM ${FROM_IMAGE}
 
-RUN pip install gdown
-
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     cuda-nvrtc-dev-11-1=11.1.105-1 \
     libcublas-dev-11-1=11.3.0.106-1 \

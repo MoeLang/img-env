@@ -3,7 +3,7 @@ FROM ${FROM_IMAGE}
 
 LABEL org.opencontainers.image.source https://github.com/autocore-ats/img-env
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN echo 'Etc/UTC' > /etc/timezone && \
     ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
@@ -11,8 +11,8 @@ RUN echo 'Etc/UTC' > /etc/timezone && \
     apt-get install -q -y --no-install-recommends tzdata && \
     rm -rf /var/lib/apt/lists/*
 
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
     dirmngr \
