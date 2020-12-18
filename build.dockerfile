@@ -1,4 +1,15 @@
+ARG FROM_SRC_IMAGE=ghcr.io/autocore-ats/src:latest
 ARG FROM_IMAGE
+
+FROM ${FROM_SRC_IMAGE} as src
+FROM ${FROM_IMAGE} as tmp
+
+COPY --from=src /AutowareArchitectureProposal /AutowareArchitectureProposal
+
+WORKDIR /AutowareArchitectureProposal
+
+RUN rosdep install --simulate --reinstall --ignore-src -y --from-paths src | sort > ros-deps
+
 FROM ${FROM_IMAGE}
 
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
@@ -8,21 +19,10 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     python3-vcstool \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    ros-${ROS_DISTRO}-test-msgs \
-    ros-${ROS_DISTRO}-tf2-geometry-msgs \
-    ros-${ROS_DISTRO}-pcl-msgs \
-    ros-${ROS_DISTRO}-lanelet2-core \
-    ros-${ROS_DISTRO}-lanelet2-io \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=tmp /AutowareArchitectureProposal/ros-deps /tmp/ros-deps
 
-RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    libpcl-dev \
-    libnl-genl-3-dev \
-    libfmt-dev \
-    libgeographic-dev \
-    libpugixml-dev \
-    libtf2-eigen-dev \
+RUN apt-get update \
+    && sh /tmp/ros-deps \
     && rm -rf /var/lib/apt/lists/*
 
 RUN ${PIP} install gdown
