@@ -136,6 +136,7 @@ jobs:
       name: Build and push the runtime docker image
       run: |
         docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag tmp --file runtime.eloquent.dockerfile .
+        docker images
         docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_3 --file runtime.dockerfile .
     - 
       name: Build and push the build docker image
