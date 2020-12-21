@@ -8,22 +8,22 @@ COPY --from=src /AutowareArchitectureProposal /AutowareArchitectureProposal
 
 WORKDIR /AutowareArchitectureProposal
 
-RUN rosdep install --simulate --reinstall --ignore-src -y --from-paths src --skip-keys \
+RUN rosdep install --simulate --reinstall --ignore-src -y --from-paths src --skip-keys "\
     livox_ros2_driver \
-    osqp_interface \
-    grid_map_demos \
-    sensing_launch \
-    grid_map_ros \
-    gnss_poser \
-    rclcpp_generic \
-    | sort > ros-deps && cat ros-deps
+    octomap_msgs \
+    osqp_vendor \
+    rosbag2_cpp \
+    rosidl_runtime_cpp \
+    ublox_gps \
+    ublox_msgs \
+    "| sort > ros-deps && cat ros-deps
 
 FROM ${FROM_IMAGE}
 
 COPY --from=tmp /AutowareArchitectureProposal/ros-deps /tmp/ros-deps
 
-RUN if [ "$(dpkg --print-architecture)" == "amd64" ]; then \
-    apt-get update \
+RUN if [ $(dpkg --print-architecture) = amd64 ]; \
+    then apt-get update \
     && apt-get install -q -y --no-install-recommends \
     cuda-nvrtc-dev-11-1=11.1.105-1 \
     libcublas-dev-11-1=11.3.0.106-1 \

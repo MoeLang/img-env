@@ -16,8 +16,8 @@ FROM ${FROM_IMAGE}
 
 COPY --from=tmp /AutowareArchitectureProposal/ros-deps /tmp/ros-deps
 
-RUN if [ "$(dpkg --print-architecture)" == "amd64" ]; then \
-    apt-get update \
+RUN if [ $(dpkg --print-architecture) = amd64 ]; \
+    then apt-get update \
     && apt-get install -q -y --no-install-recommends \
     cuda-nvrtc-dev-11-1=11.1.105-1 \
     libcublas-dev-11-1=11.3.0.106-1 \

@@ -106,7 +106,9 @@ jobs:
     env:
       DOCKER_REPO_1: ghcr.io/autocore-ats/core-eloquent-xavier:latest
       DOCKER_REPO_2: ghcr.io/autocore-ats/base-eloquent-xavier:latest
+      DOCKER_REPO_2_tmp: ghcr.io/autocore-ats/base-eloquent-xavier_tmp:latest
       DOCKER_REPO_3: ghcr.io/autocore-ats/runtime-eloquent-xavier:latest
+      DOCKER_REPO_3_tmp: ghcr.io/autocore-ats/runtime-eloquent-xavier_tmp:latest
       DOCKER_REPO_4: ghcr.io/autocore-ats/build-eloquent-xavier:latest
       DOCKER_REPO_5: ghcr.io/autocore-ats/devel-eloquent-xavier:latest
     steps:
@@ -135,14 +137,13 @@ jobs:
     - 
       name: Build and push the runtime docker image
       run: |
-        docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag tmp --file runtime.eloquent.dockerfile .
-        docker images
-        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_3 --file runtime.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag $DOCKER_REPO_2_tmp --file runtime.eloquent.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2_tmp --tag $DOCKER_REPO_3 --file runtime.dockerfile .
     - 
       name: Build and push the build docker image
       run: |
-        docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3 --tag tmp --file build.eloquent.dockerfile .
-        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_4 --file build.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3 --tag $DOCKER_REPO_3_tmp --file build.eloquent.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3_tmp --tag $DOCKER_REPO_4 --file build.dockerfile .
     - 
       name: Build and push the devel docker image
       run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_4 --tag $DOCKER_REPO_5 --file devel.dockerfile .
@@ -151,7 +152,9 @@ jobs:
     env:
       DOCKER_REPO_1: ghcr.io/autocore-ats/core-foxy-pcu:latest
       DOCKER_REPO_2: ghcr.io/autocore-ats/base-foxy-pcu:latest
+      DOCKER_REPO_2_tmp: ghcr.io/autocore-ats/base-foxy-pcu_tmp:latest
       DOCKER_REPO_3: ghcr.io/autocore-ats/runtime-foxy-pcu:latest
+      DOCKER_REPO_3_tmp: ghcr.io/autocore-ats/runtime-foxy-pcu_tmp:latest
       DOCKER_REPO_4: ghcr.io/autocore-ats/build-foxy-pcu:latest
       DOCKER_REPO_5: ghcr.io/autocore-ats/devel-foxy-pcu:latest
     steps:
@@ -180,13 +183,13 @@ jobs:
     - 
       name: Build and push the runtime docker image
       run: |
-        docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag tmp --file runtime.foxy.dockerfile .
-        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_3 --file runtime.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2 --tag $DOCKER_REPO_2_tmp --file runtime.foxy.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_2_tmp --tag $DOCKER_REPO_3 --file runtime.dockerfile .
     - 
       name: Build and push the build docker image
       run: |
-        docker buildx build --output "type=image,push=false" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3 --tag tmp --file build.foxy.dockerfile .
-        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=tmp --tag $DOCKER_REPO_4 --file build.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3 --tag $DOCKER_REPO_3_tmp --file build.foxy.dockerfile .
+        docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_3_tmp --tag $DOCKER_REPO_4 --file build.dockerfile .
     - 
       name: Build and push the devel docker image
       run: docker buildx build --output "type=image,push=true" --platform linux/arm64 --build-arg FROM_IMAGE=$DOCKER_REPO_4 --tag $DOCKER_REPO_5 --file devel.dockerfile .
