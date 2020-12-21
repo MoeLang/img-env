@@ -8,7 +8,7 @@ COPY --from=src /AutowareArchitectureProposal /AutowareArchitectureProposal
 
 WORKDIR /AutowareArchitectureProposal
 
-RUN rosdep install --simulate --reinstall --ignore-src -y --from-paths src | sort > ros-deps && cat ros-deps
+RUN rosdep install --simulate --reinstall --ignore-src -y --from-paths src --skip-keys livox_ros2_driver | sort > ros-deps && cat ros-deps
 
 FROM ${FROM_IMAGE}
 
