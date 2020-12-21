@@ -8,8 +8,6 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     python3-vcstool \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=tmp /AutowareArchitectureProposal/ros-deps /tmp/ros-deps
-
 RUN apt-get update \
     && cat /tmp/ros-deps \
     && sh /tmp/ros-deps \

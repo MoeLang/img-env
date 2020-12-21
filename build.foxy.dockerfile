@@ -14,6 +14,8 @@ RUN rosdep install --simulate --reinstall --ignore-src -y --from-paths src --ski
 
 FROM ${FROM_IMAGE}
 
+COPY --from=tmp /AutowareArchitectureProposal/ros-deps /tmp/ros-deps
+
 RUN if [ "$(dpkg --print-architecture)" == "amd64" ]; then \
     apt-get update \
     && apt-get install -q -y --no-install-recommends \
