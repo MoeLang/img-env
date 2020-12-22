@@ -32,13 +32,15 @@ jobs:
       uses: actions/checkout@v2
     -
       name: Get Tags
+      id: tag
       run: |
         tag=$(git describe --exact-match --tags $(git log -n1 --pretty='%h')) || tag=latest
         export TAG=$tag
-        echo "::set-env name=TAG::$TAG"
+        echo ::set-output name=TAG::$TAG
     - 
       name: Build the core docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_1}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_1}:${TAG}"
@@ -47,6 +49,7 @@ jobs:
     - 
       name: Build the base docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_2}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_2}:${TAG}"
@@ -55,6 +58,7 @@ jobs:
     - 
       name: Build the runtime docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_3}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_3}:${TAG}"
@@ -64,6 +68,7 @@ jobs:
     - 
       name: Build the build docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_4}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_4}:${TAG}"
@@ -73,6 +78,7 @@ jobs:
     - 
       name: Build the devel docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_5}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_5}:${TAG}"

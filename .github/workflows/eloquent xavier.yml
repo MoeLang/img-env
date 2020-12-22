@@ -35,10 +35,11 @@ jobs:
       uses: actions/checkout@v2
     -
       name: Get Tags
+      id: tag
       run: |
         tag=$(git describe --exact-match --tags $(git log -n1 --pretty='%h')) || tag=latest
         export TAG=$tag
-        echo "::set-env name=TAG::$TAG"
+        echo ::set-output name=TAG::$TAG
     -
       name: Set up QEMU
       uses: docker/setup-qemu-action@v1
@@ -48,6 +49,7 @@ jobs:
     -
       name: Build and push the core docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_1}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_1}:${TAG}"
@@ -56,6 +58,7 @@ jobs:
     - 
       name: Build and push the base docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_2}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_2}:${TAG}"
@@ -64,6 +67,7 @@ jobs:
     - 
       name: Build and push the runtime docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_3}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_3}:${TAG}"
@@ -77,6 +81,7 @@ jobs:
     - 
       name: Build and push the build docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_5}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_5}:${TAG}"
@@ -90,6 +95,7 @@ jobs:
     - 
       name: Build and push the devel docker image
       run: |
+        TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_7}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_7}:${TAG}"
