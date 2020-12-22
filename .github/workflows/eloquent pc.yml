@@ -38,7 +38,7 @@ jobs:
         export TAG=$tag
         echo ::set-output name=TAG::$TAG
     - 
-      name: Build the core docker image
+      name: Build and push the core docker image
       run: |
         TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_1}"
@@ -46,8 +46,10 @@ jobs:
           TAGS="$TAGS --tag ${DOCKER_REPO_1}:${TAG}"
         fi
         docker build . --file core.dockerfile ${TAGS} --build-arg FROM_IMAGE=nvidia/cudagl:11.1-runtime-ubuntu18.04
+        docker push ${DOCKER_REPO_1}
+        docker push ${DOCKER_REPO_1}:${TAG}
     - 
-      name: Build the base docker image
+      name: Build and push the base docker image
       run: |
         TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_2}"
@@ -55,6 +57,8 @@ jobs:
           TAGS="$TAGS --tag ${DOCKER_REPO_2}:${TAG}"
         fi
         docker build . --file base.eloquent.dockerfile ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_1
+        docker push ${DOCKER_REPO_2}
+        docker push ${DOCKER_REPO_2}:${TAG}
     - 
       name: Build the runtime docker image
       run: |
@@ -65,8 +69,10 @@ jobs:
         fi
         docker build . --file runtime.eloquent.dockerfile --tag tmp --build-arg FROM_IMAGE=$DOCKER_REPO_2
         docker build . --file runtime.dockerfile ${TAGS} --build-arg FROM_IMAGE=tmp
+        docker push ${DOCKER_REPO_3}
+        docker push ${DOCKER_REPO_3}:${TAG}
     - 
-      name: Build the build docker image
+      name: Build and push the build docker image
       run: |
         TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_4}"
@@ -75,8 +81,10 @@ jobs:
         fi
         docker build . --file build.eloquent.dockerfile --tag tmp --build-arg FROM_IMAGE=$DOCKER_REPO_3
         docker build . --file build.dockerfile ${TAGS} --build-arg FROM_IMAGE=tmp
+        docker push ${DOCKER_REPO_4}
+        docker push ${DOCKER_REPO_4}:${TAG}
     - 
-      name: Build the devel docker image
+      name: Build and push the devel docker image
       run: |
         TAG=${{ steps.tag.outputs.TAG }}
         TAGS="--tag ${DOCKER_REPO_5}"
@@ -84,6 +92,5 @@ jobs:
           TAGS="$TAGS --tag ${DOCKER_REPO_5}:${TAG}"
         fi
         docker build . --file devel.dockerfile ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_4
-    -
-      name: Push all images
-      run: docker push -a
+        docker push ${DOCKER_REPO_5}
+        docker push ${DOCKER_REPO_5}:${TAG}

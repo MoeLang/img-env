@@ -14,7 +14,7 @@ jobs:
   eloquent-xavier:
     runs-on: ubuntu-latest
     env:
-      OUTPUT: "--output 'type=image,push=true' --platform linux/arm64"
+      OUTPUT: "--output \"type=image,push=true\" --platform linux/arm64"
       DOCKER_REPO_1: ghcr.io/${{ github.repository_owner }}/core-eloquent-xavier
       DOCKER_REPO_2: ghcr.io/${{ github.repository_owner }}/base-eloquent-xavier
       DOCKER_REPO_3: ghcr.io/${{ github.repository_owner }}/base-eloquent-xavier_tmp
@@ -33,6 +33,13 @@ jobs:
     - 
       name: Checkout
       uses: actions/checkout@v2
+    -
+      name: Config Outputs
+      id: config
+      run: |
+        config="--output \"type=image,push=true\" --platform linux/arm64"
+        export CONFIG=$config
+        echo ::set-output name=CONFIG::$CONFIG
     -
       name: Get Tags
       id: tag
@@ -54,7 +61,7 @@ jobs:
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_1}:${TAG}"
         fi
-        docker buildx build ${OUTPUT} ${TAGS} --build-arg FROM_IMAGE=nvcr.io/nvidia/l4t-base:r32.4.4 --file core.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=nvcr.io/nvidia/l4t-base:r32.4.4 --file core.dockerfile .
     - 
       name: Build and push the base docker image
       run: |
@@ -63,7 +70,7 @@ jobs:
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_2}:${TAG}"
         fi
-        docker buildx build ${OUTPUT} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_1 --file base.eloquent.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_1 --file base.eloquent.dockerfile .
     - 
       name: Build and push the runtime docker image
       run: |
@@ -72,12 +79,12 @@ jobs:
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_3}:${TAG}"
         fi
-        docker buildx build ${OUTPUT} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_2 --file runtime.eloquent.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_2 --file runtime.eloquent.dockerfile .
         TAGS="--tag ${DOCKER_REPO_4}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_4}:${TAG}"
         fi
-        docker buildx build ${OUTPUT} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_3 --file runtime.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_3 --file runtime.dockerfile .
     - 
       name: Build and push the build docker image
       run: |
@@ -86,12 +93,12 @@ jobs:
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_5}:${TAG}"
         fi
-        docker buildx build ${OUTPUT} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_4 --file build.eloquent.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_4 --file build.eloquent.dockerfile .
         TAGS="--tag ${DOCKER_REPO_6}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_6}:${TAG}"
         fi
-        docker buildx build ${OUTPUT} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_5 --file build.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_5 --file build.dockerfile .
     - 
       name: Build and push the devel docker image
       run: |
@@ -100,4 +107,4 @@ jobs:
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_7}:${TAG}"
         fi
-        docker buildx build ${OUTPUT} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_6 --file devel.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_6 --file devel.dockerfile .
