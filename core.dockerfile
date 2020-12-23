@@ -1,7 +1,15 @@
 ARG FROM_IMAGE
 FROM ${FROM_IMAGE}
 
-LABEL org.opencontainers.image.source https://github.com/autocore-ats/img-env
+ARG VER
+ARG SHA
+
+RUN echo ${VER} > /VER
+RUN echo ${SHA} > /SHA
+
+ARG REPO
+
+LABEL org.opencontainers.image.source ${REPO}
 
 ENV DEBIAN_FRONTEND=noninteractive
 

@@ -14,6 +14,7 @@ jobs:
   foxy-pcu:
     runs-on: ubuntu-latest
     env:
+      REPO: https://github.com/${{ github.repository }}
       DOCKER_REPO_1: ghcr.io/${{ github.repository_owner }}/core-foxy-pcu
       DOCKER_REPO_2: ghcr.io/${{ github.repository_owner }}/base-foxy-pcu
       DOCKER_REPO_3: ghcr.io/${{ github.repository_owner }}/base-foxy-pcu_tmp
@@ -40,12 +41,19 @@ jobs:
         export CONFIG=$config
         echo ::set-output name=CONFIG::$CONFIG
     -
-      name: Get Tags
-      id: tag
+      name: Get VER
+      id: ver
       run: |
-        tag=$(git describe --exact-match --tags $(git log -n1 --pretty='%h')) || tag=latest
-        export TAG=$tag
-        echo ::set-output name=TAG::$TAG
+        ver=$(git describe --exact-match --tags $(git log -n1 --pretty='%h')) || ver=latest
+        export VER=$ver
+        echo ::set-output name=VER::$VER
+    -
+      name: Get SHA
+      id: sha
+      run: |
+        sha=$(git rev-list --max-count=1 HEAD)
+        export SHA=$sha
+        echo ::set-output name=SHA::$SHA
     -
       name: Set up QEMU
       uses: docker/setup-qemu-action@v1
@@ -55,55 +63,55 @@ jobs:
     -
       name: Build and push the core docker image
       run: |
-        TAG=${{ steps.tag.outputs.TAG }}
+        TAG=${{ steps.ver.outputs.VER }}
         TAGS="--tag ${DOCKER_REPO_1}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_1}:${TAG}"
         fi
-        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=ubuntu:focal --file core.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG }} ${TAGS} --build-arg REPO=$REPO --build-arg VER=${{ steps.ver.outputs.VER }} --build-arg SHA=${{ steps.sha.outputs.SHA }} --build-arg FROM_IMAGE=ubuntu:focal --file core.dockerfile .
     - 
       name: Build and push the base docker image
       run: |
-        TAG=${{ steps.tag.outputs.TAG }}
+        TAG=${{ steps.ver.outputs.VER }}
         TAGS="--tag ${DOCKER_REPO_2}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_2}:${TAG}"
         fi
-        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_1 --file base.foxy.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG }} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_1 --file base.foxy.dockerfile .
     - 
       name: Build and push the runtime docker image
       run: |
-        TAG=${{ steps.tag.outputs.TAG }}
+        TAG=${{ steps.ver.outputs.VER }}
         TAGS="--tag ${DOCKER_REPO_3}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_3}:${TAG}"
         fi
-        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_2 --file runtime.foxy.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG }} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_2 --file runtime.foxy.dockerfile .
         TAGS="--tag ${DOCKER_REPO_4}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_4}:${TAG}"
         fi
-        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_3 --file runtime.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG }} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_3 --file runtime.dockerfile .
     - 
       name: Build and push the build docker image
       run: |
-        TAG=${{ steps.tag.outputs.TAG }}
+        TAG=${{ steps.ver.outputs.VER }}
         TAGS="--tag ${DOCKER_REPO_5}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_5}:${TAG}"
         fi
-        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_4 --file build.foxy.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG }} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_4 --file build.foxy.dockerfile .
         TAGS="--tag ${DOCKER_REPO_6}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_6}:${TAG}"
         fi
-        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_5 --file build.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG }} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_5 --file build.dockerfile .
     - 
       name: Build and push the devel docker image
       run: |
-        TAG=${{ steps.tag.outputs.TAG }}
+        TAG=${{ steps.ver.outputs.VER }}
         TAGS="--tag ${DOCKER_REPO_7}"
         if [ $TAG != latest ]; then
           TAGS="$TAGS --tag ${DOCKER_REPO_7}:${TAG}"
         fi
-        docker buildx build ${{ steps.config.outputs.CONFIG}} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_6  --file devel.dockerfile .
+        docker buildx build ${{ steps.config.outputs.CONFIG }} ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_6  --file devel.dockerfile .
